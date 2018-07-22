@@ -6,6 +6,6 @@ addons:
         packages:
             - make
 go:
-    - 1.10
+    - "1.10"
 script:
     - make
