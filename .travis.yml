@@ -1,0 +1,11 @@
+language: go
+os: linux
+dist: trusty
+addons:
+    apt:
+        packages:
+            - make
+go:
+    - 1.10
+script:
+    - make
