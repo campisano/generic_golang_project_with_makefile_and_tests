@@ -8,7 +8,7 @@ SRC_FILES := $(shell find $(SRC_DIRS) -name \*$(SRC_EXT))
 all: check test
 
 .PHONY: check
-check: gometalinter
+check: gometalinter testify
 	@echo " -> Checking code..."
 	@gometalinter.v2 --vendor --fast --sort=linter ./...
 
