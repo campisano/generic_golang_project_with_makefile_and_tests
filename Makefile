@@ -1,8 +1,7 @@
-GO=go
 BINARY_NAME=calc
-SRC_EXT=.go
-SRC_DIRS=./
-SRC_FILES := $(shell find $(SRC_DIRS) -name \*$(SRC_EXT))
+DEBUG_NAME=calc_debug
+MAIN_PACKAGE=./cmd
+SRC_DIRS?=$$(go list ./...)
 
 .PHONY: all
 all: check test
@@ -10,41 +9,48 @@ all: check test
 .PHONY: check
 check: gometalinter testify
 	@echo " -> Checking code..."
-	@gometalinter.v2 --vendor --fast --sort=linter ./...
+	@gometalinter.v2 --vendor --fast --sort=linter $(SRC_DIRS)
 
 PKG_GOMETALINTER=gopkg.in/alecthomas/gometalinter.v2
 .PHONY: gometalinter
 gometalinter: $(GOPATH)/src/$(PKG_GOMETALINTER)
 $(GOPATH)/src/$(PKG_GOMETALINTER):
 	@echo " -> Installing Gometalinter..."
-	@$(GO) get -u $(PKG_GOMETALINTER)
+	@go get -u $(PKG_GOMETALINTER)
 	@gometalinter.v2 --install
 
+.PHONY: format
+format:
+	@echo " -> Formatting code..."
+	@go fmt $(SRC_DIRS)
+
 .PHONY: test
+test:	export GOCACHE=off
 test: testify build
 	@echo " -> Testing code..."
-	@$(GO) test -v ./...
+	@go test -v $(SRC_DIRS)
 
 PKG_TESTIFY=github.com/stretchr/testify
 .PHONY: testify
 testify: $(GOPATH)/src/$(PKG_TESTIFY)
 $(GOPATH)/src/$(PKG_TESTIFY):
 	@echo " -> Installing Testify..."
-	@$(GO) get -u $(PKG_TESTIFY)
-
-.PHONY: run
-run: build
-	@echo " -> Running code..."
-	@./$(BINARY_NAME)
+	@go get -u $(PKG_TESTIFY)
 
 .PHONY: build
-build: $(BINARY_NAME)
-$(BINARY_NAME): $(SRC_FILES)
+build:
 	@echo " -> Building code..."
-	@$(GO) build -o $(BINARY_NAME) -v
+	@go build -v -o $(BINARY_NAME) $(MAIN_PACKAGE)
+
+.PHONY: debug
+debug:
+	@echo " -> Building code for debug..."
+	@go build -v -gcflags=all="-N -l" -o $(DEBUG_NAME) $(MAIN_PACKAGE)
 
 .PHONY: clean
 clean:
 	@echo " -> Cleaning code..."
-	@$(GO) clean
-	@rm -f $(BINARY_NAME)
+	@go clean -v $(SRC_DIRS)
+	@rm -f $(BINARY_NAME) $(DEBUG_NAME)
+
+.DEFAULT_GOAL := test
