@@ -1,5 +1,5 @@
 language: go
-go_import_path: $GOPATH/src
+go_import_path: ""
 os: linux
 dist: trusty
 addons:
