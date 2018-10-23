@@ -1,5 +1,5 @@
 language: go
-go_import_path: ""
+go_import_path: golang-sample-project-with-makefile-and-test
 os: linux
 dist: trusty
 addons:
